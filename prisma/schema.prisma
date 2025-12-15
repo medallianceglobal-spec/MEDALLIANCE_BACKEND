@@ -1,0 +1,159 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("NEONDB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  phone_number String    
+  email        String    @unique
+  passwordHash String?
+  name         String?
+  role         Int       @default(1) // 1 = user, 2 = vendor
+  googleId     String?   @unique
+  avatarUrl    String?
+  provider     String    @default("local")
+  providerId   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  companies    Company[]
+  reviews      Review[]
+  leads        Lead[]
+}
+
+model Company {
+  id              String    @id @default(uuid())
+  ownerId         String
+  owner           User      @relation(fields: [ownerId], references: [id])
+
+  name            String
+  tagline         String?
+  description     String
+  longDescription String?
+
+  city            String
+  state           String
+  country         String
+
+  rating          Float     @default(0)
+  totalReviews    Int       @default(0)
+
+  location        String?
+  fullAddress     String?
+  phone           String?
+  email           String?
+  website         String?
+  workingHours    String?
+
+  isPremium       Boolean   @default(false)
+  isAccredited    Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  images          CompanyImage[]
+  specializations CompanySpecialization[]
+  accreditations  CompanyAccreditation[]
+  subCategories   CompanySubCategory[] 
+  reviews         Review[]
+}
+
+model CompanyImage {
+  id        String   @id @default(uuid())
+  companyId String
+  imageUrl  String
+
+  company   Company  @relation(fields: [companyId], references: [id])
+}
+
+model Category {
+  id            String        @id @default(uuid())
+  name          String        @unique
+  companies     Company[]
+  subCategories SubCategory[]
+}
+
+model SubCategory {
+  id         String   @id @default(uuid())
+  name       String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  
+  companies  CompanySubCategory[]
+}
+
+model Specialization {
+  id        String                 @id @default(uuid())
+  name      String                 @unique
+  companies CompanySpecialization[]
+}
+
+model CompanySpecialization {
+  companyId        String
+  specializationId String
+
+  company        Company        @relation(fields: [companyId], references: [id])
+  specialization Specialization @relation(fields: [specializationId], references: [id])
+
+  @@id([companyId, specializationId])
+}
+
+model CompanySubCategory {
+  companyId     String
+  subCategoryId String
+
+  company     Company     @relation(fields: [companyId], references: [id])
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [id])
+
+  @@id([companyId, subCategoryId])
+}
+
+
+model Accreditation {
+  id        String                 @id @default(uuid())
+  name      String                 @unique
+  companies CompanyAccreditation[]
+}
+
+model CompanyAccreditation {
+  companyId       String
+  accreditationId String
+
+  company        Company        @relation(fields: [companyId], references: [id])
+  accreditation  Accreditation  @relation(fields: [accreditationId], references: [id])
+
+  @@id([companyId, accreditationId])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  companyId String
+  userId    String
+
+  rating    Int
+  comment   String
+  helpful   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  company   Company  @relation(fields: [companyId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Lead {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone_number String
+  createdAt    DateTime @default(now())
+  
+  @@index([userId])
+}
