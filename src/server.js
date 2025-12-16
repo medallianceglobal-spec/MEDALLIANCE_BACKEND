@@ -11,32 +11,17 @@ const app = express();
 /**
  * ✅ Allowed origins (local + production)
  */
-const allowedOrigins = [
-  "http://localhost:8080",
-  "http://localhost:5173",
-  "https://medalliance-frontend.vercel.app",
-];
 
 /**
  * ✅ CORS middleware (FIXES your error)
  */
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow server-to-server, Postman, curl
-      if (!origin) return callback(null, true);
+app.use(cors({
+  origin: "https://medalliance-frontend.vercel.app",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
 
 /**
  * ✅ IMPORTANT: handle preflight requests
