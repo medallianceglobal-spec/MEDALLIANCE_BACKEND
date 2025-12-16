@@ -17,7 +17,6 @@ app.use(
   })
 );
 
-/* ✅ Preflight */
 app.options("*", cors());
 
 /* ✅ Body parsers (THIS FIXES LOGIN) */
