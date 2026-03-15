@@ -10,7 +10,11 @@ const app = express();
 /* ✅ CORS FIRST */
 app.use(
   cors({
-    origin: "https://medalliance-frontend.vercel.app",
+    origin: [
+      "https://medalliance-frontend.vercel.app",
+      "https://globalmaa.com",
+      "https://www.globalmaa.com"
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
